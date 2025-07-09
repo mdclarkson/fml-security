@@ -1,5 +1,4 @@
 import pytest
-import random
 
 from typing import Callable, Tuple, Awaitable
 
@@ -7,6 +6,7 @@ from mlserver.utils import generate_uuid
 from mlserver.types import InferenceRequest, TensorData
 from mlserver.model import MLModel
 from mlserver.batching.adaptive import AdaptiveBatcher
+import secrets
 
 TestRequestSender = Callable[[], Awaitable[Tuple[str, InferenceRequest]]]
 
@@ -27,7 +27,7 @@ def send_request(
         # Generate random data to ensure we catch any out-of-order issues
         request_input = inference_request.inputs[0]
         request_input.data = TensorData(
-            __root__=[random.randint(1, 100) for _ in range(3)]
+            __root__=[secrets.SystemRandom().randint(1, 100) for _ in range(3)]
         )
         new_req = InferenceRequest(id=pred_id, inputs=[request_input])
         internal_id, _ = await adaptive_batcher._queue_request(new_req)
